@@ -112,12 +112,10 @@ RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 
 ```
 Then, you can build this new image, which I’m naming nvidia_ros, and test out all of the promised capabilities.
-
+```
 # Build the Dockerfile
-```
+
 docker build -t nvidia_ros .
-```
-```
 # Start a terminal
 docker run -it --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
@@ -126,8 +124,9 @@ docker run -it --net=host --gpus all \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     nvidia_ros \
     bash
+```
 Once you’re inside the Docker container, you can run some tests like the following:
-
+```
 # Test GUI based tools
 rqt
 gazebo
