@@ -66,7 +66,7 @@ According to the ROS Wiki, there are several ways to get graphics to work from i
 ```
 xhost + 
  
-docker run -it --net=host \
+docker run -it --privileged --net=host \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
@@ -78,7 +78,7 @@ NOTE: You only have to run xhost + once each time you log into the machine. Thes
 
 However, in my experience this approach is not bulletproof. In fact, the instructions from the ROS Wiki on their own do not work on my personal laptop. This is where the NVIDIA Container Toolkit comes in. As long as you have an NVIDIA GPU with the right drivers (which in Ubuntu is a feat in itself, to be honest), you can get around some of the pesky display issues and additionally get support for other GPU accelerated tasks such as CUDA and OpenGL. Once you install the NVIDIA Container Toolkit, the above command gets a few more pieces tacked on. For example:
 ```
-docker run -it --net=host --gpus all \
+docker run -it --privileged --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
@@ -117,7 +117,7 @@ Then, you can build this new image, which I’m naming nvidia_ros, and test out 
 
 docker build -t nvidia_ros .
 # Start a terminal
-docker run -it --net=host --gpus all \
+docker run -it --privileged --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
@@ -187,7 +187,7 @@ docker build -f dockerfile_tb3_base -t turtlebot3_base .
 Since I don’t want to type out all the docker run options anymore (and I presume you don’t want to either), I made a run_docker.sh script that makes this a little easier. With this script, the following commands are equivalent.
 ```
 # Original command (broke)
-docker run -it --net=host --gpus all \
+docker run -it --privileged --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
@@ -246,7 +246,7 @@ Of course, once you are done developing the act of copying your code (or cloning
 docker build -f dockerfile_tb3_overlay -t turtlebot3_overlay .
  
 # Start a terminal with mounted volumes
-docker run -it --net=host --gpus all \
+docker run -it --privileged --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
