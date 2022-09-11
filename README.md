@@ -180,11 +180,13 @@ WORKDIR /turtlebot3_ws
 ```
 
 Then we can build both our images, where the -f flag refers to the file name to use and -t refers to the name of the target container. Otherwise, Docker will by default look for a file in the current folder named Dockerfile.
-
+```
 docker build -f dockerfile_nvidia_ros -t nvidia_ros .
-docker build -f dockerfile_tb3_base -t turtlebot3_base .
-Since I don’t want to type out all the docker run options anymore (and I presume you don’t want to either), I made a run_docker.sh script that makes this a little easier. With this script, the following commands are equivalent.
 
+docker build -f dockerfile_tb3_base -t turtlebot3_base .
+```
+Since I don’t want to type out all the docker run options anymore (and I presume you don’t want to either), I made a run_docker.sh script that makes this a little easier. With this script, the following commands are equivalent.
+```
 # Original command (broke)
 docker run -it --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
@@ -198,13 +200,14 @@ docker run -it --net=host --gpus all \
 ./run_docker.sh turtlebot3_base "roslaunch gazebo_ros empty_world.launch"
  
 # We'll see even more abstraction later (bespoke)
+```
 So now, we can start a simulated robot and drive it around with our keyboard… all from inside Docker containers. From two separate Terminals, try this out:
-
+```
 ./run_docker.sh turtlebot3_base "roslaunch turtlebot3_gazebo turtlebot3_world.launch"
  
 ./run_docker.sh turtlebot3_base "roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch"
 
-
+```
 
 ![image](https://user-images.githubusercontent.com/44266017/189527056-99d7ee23-3694-4cc4-8137-33361ae87b86.png)
 
@@ -216,23 +219,7 @@ Now it’s time for a third Docker image: our “overlay” image. Now we we’v
 ![image](https://user-images.githubusercontent.com/44266017/189527074-0298626a-632d-4ade-9a53-6ebc03dbce73.png)
 
 Our overlay Dockerfile will look as follows:
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
+```
 FROM turtlebot3_base:latest
  
 # Create an overlay Catkin workspace
@@ -249,12 +236,13 @@ RUN source /opt/ros/noetic/setup.bash \
  
 # Set up the work directory and entrypoint
 WORKDIR /overlay_ws
+```
 As we plan to modify this code regularly during development, we need to think about how to add these files to our Docker image. Specifically, we have two options:
 
 Copying files: This is what is shown in the Dockerfile above. Whenever you modify a file on the host, you have to rebuild the entire image for the changes to go through. Docker does have a build cache, so building will at least resume from the line in which you copy files over. Alternatively, if you modify the files inside a container, those changes will not persist once you exit the container.
 Mounting volumes: This is the better option if you want persistent files that are shared between the host machine and your containers. Unlike copied files, which are available at build time, mounted files are only available at runtime (that is, after build). So if you need any of your source files to actually build an image, consider copying only the files you need while building.
 Of course, once you are done developing the act of copying your code (or cloning it from source control) is a one-and-done thing… unless you expect your end users to still be modifying the code. So mounting volumes can still be useful even for deployment. You just don’t necessarily want to mount everything.
-
+```
 # Build the Dockerfile
 docker build -f dockerfile_tb3_overlay -t turtlebot3_overlay .
  
@@ -268,6 +256,7 @@ docker run -it --net=host --gpus all \
     --volume="${PWD}/tb3_worlds":"/overlay_ws/src/tb3_worlds":rw \
     nvidia_ros \
     bash
+```
 According to the volumes we added to our massive docker run command, now the tb3_autonomy and tb3_worlds folders are shared between the host and container file systems.
 
 When dealing with Python code or scripting languages in general, you can simply modify files on your host and immediately see the changes inside the container. For compiled languages like C++ or anything else that requires building, like updating Catkin packages, you will have to rebuild inside the container. Unless you explicitly mount these build artifacts (for example, the devel, build, and logs folders in a Catkin workspace), these generated files will not be persistent. Depending on how long your Catkin packages take to build, and how often you are rebuilding inside containers, you may want to consider some intelligence with these files in addition to the source files.
