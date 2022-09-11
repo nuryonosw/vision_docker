@@ -266,31 +266,12 @@ At this point our Docker commands are getting… a little long, to say the least
 Here I also want to introduce the concept of an entrypoint in Docker. In short, entrypoints allow you control the default behavior when running a command in a container. For ROS based workflows, entrypoints are great for sourcing workspaces and setting environment variables.
 
 You can add an entrypoint to a Dockerfile as follows:
-
+```
 COPY ./docker/entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
-… where the entrypoint.sh file in our case looks as follows. In brief, we are sourcing the necessary Catkin workspaces (if they have been built and have an associated setup.bash file), and defining some environment variables needed for our simulation. Most importantly, the shebang operator at the beginning (#!/bin/bash) is instructing the container to use Bash as its default shell so the source commands actually work, and so we don’t have to explicitly use the bash -it -c "command" syntax we had been relying on up untli now.
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
+```
+where the entrypoint.sh file in our case looks as follows. In brief, we are sourcing the necessary Catkin workspaces (if they have been built and have an associated setup.bash file), and defining some environment variables needed for our simulation. Most importantly, the shebang operator at the beginning (#!/bin/bash) is instructing the container to use Bash as its default shell so the source commands actually work, and so we don’t have to explicitly use the bash -it -c "command" syntax we had been relying on up untli now.
+```
 #!/bin/bash
  
 # Source ROS and Catkin workspaces
@@ -311,19 +292,11 @@ export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$(rospack find tb3_worlds)/models
  
 # Execute the command passed into this entrypoint
 exec "$@"
+```
 We already saw how writing a script around docker run was useful for abstracting away a lot of details, but I have one more recommendation to share. This is the use of GNU make to define easy-to-use entrypoints to your code. We do this by creating a Makefile and a set of “rules”, which consist of named targets with prequisites and recipes (that is, what actually executes when you run a target). For more information, refer to the Introduction chapter of the make documentation.
 
 First, we can create variables so that we can reuse all the volumes and environment variables across various docker run commands. Finally!
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
+```
 DOCKER_VOLUMES = \
     --volume="${PWD}/tb3_autonomy":"/overlay_ws/src/tb3_autonomy":rw \
     --volume="${PWD}/tb3_worlds":"/overlay_ws/src/tb3_worlds":rw \
@@ -333,22 +306,9 @@ DOCKER_ENV_VARS = \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1"
 DOCKER_ARGS = ${DOCKER_VOLUMES} ${DOCKER_ENV_VARS}
+```
 Next, we can create phony targets to build all our Docker images. Notice the chain of prerequisites from core to base to overlay images. So you can directly instruct a build of the overlay image and the other two targets will execute run first.
-
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
+```
 # Build the core image
 .PHONY: build-core
 build-core:
@@ -363,20 +323,9 @@ build-base:
 .PHONY: build
 build: build-base
     @docker build -f ./docker/dockerfile_tb3_overlay -t turtlebot3_overlay .
+```
 After that, we can create task-specific targets; that is, targets that will run commands inside Docker once we’ve defined our convenience variables and built our containers.
-
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
+```
 # Start a terminal inside the Docker container
 .PHONY: term
 term:
@@ -389,10 +338,12 @@ sim:
     @docker run -it --net=host --gpus all \
         ${DOCKER_ARGS} turtlebot3_overlay \
         roslaunch turtlebot3_gazebo turtlebot3_world.launch
+```
 The full Makefile has can be found in my GitHub repository. This also defines make targets that run our examples in the overlay workspace. For example, the following two commands will respectively start a simulated robot in a demo world and a node that manages the high-level robot behavior to navigate the world.
-
+```
 make demo-world
 make demo-behavior
+```
 ![image](https://user-images.githubusercontent.com/44266017/189527105-d9848294-0768-4e31-a1b8-63fc1f42a1fc.png)
 
 Conclusion
