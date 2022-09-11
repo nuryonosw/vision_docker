@@ -23,20 +23,22 @@ Creating a Docker image with ROS
 
 First things first: If you can, you should absolutely rely on the prebuilt OSRF ROS images on Docker Hub. Once you’ve installed Docker, you can directly pull one of these images with a single command. For example, to get the full ROS Noetic desktop install directly from the source:
 
-
+```
 docker pull osrf/ros:noetic-desktop-full
-
+```
 
 Once you’ve set this up, you can go into a container and do your ROS activities. For example, the following line will start a ROS master inside a container.
-
+```
 docker run -it osrf/ros:noetic-desktop-full roscore
+```
 Now open another Terminal, enter a Bash shell inside the container, and see if you can list the available ROS topics:
-
+```
 docker run -it osrf/ros:noetic-desktop-full bash
 # rostopic list
 ERROR: Unable to communicate with master!
+```
 As you see, this did not work because each container is completely isolated unless you explicitly allow them to talk to each other. There are many Docker networking options, but one common one is to allow the containers to share the same network as the host. Try the same lines again with the following extra arguments:
-
+```
 docker run -it --net=host osrf/ros:noetic-desktop-full roscore
  
 docker run -it --net=host osrf/ros:noetic-desktop-full bash
@@ -44,22 +46,24 @@ docker run -it --net=host osrf/ros:noetic-desktop-full bash
 /rosout
 /rosout_agg
 
-
+```
 Now, you could open a few Terminals inside your container and see if you can publish and subscribe to ROS topics using the command-line tools. For example, try running the following commands in 3 separate Terminals, ensuring you start the Docker container with host networking.
-
+```
 roscore 
  
 rostopic pub -r 1 /my_topic std_msgs/String '{data: "hello"}'
  
 rostopic echo /my_topic
+```
 If you happen to have ROS installed on your host machine, you could also try to publish/subscribe between the host and container.
 
 Graphics Inside Docker Containers
 Now we should have an isolated ROS development environment with some TurtleBot3 packages… but if you try running anything with graphics you’ll find this isn’t going to immediately work out the gate. For example, try the following command (the -it arguments denote interactive shells so you can actually see the output).
-
+```
 docker run -it --net=host osrf/ros:noetic-desktop-full bash -it -c "roslaunch gazebo_ros empty_world.launch"
+```
 According to the ROS Wiki, there are several ways to get graphics to work from inside a Docker container — and this is key for ROS workflows full of visual tools like RViz, rqt, and Gazebo. Taking the simplest (but least secure) of the approaches, which is to allow Docker to use the host machine’s X11 socket, we can do the following:
-
+```
 xhost + 
  
 docker run -it --net=host \
@@ -68,10 +72,12 @@ docker run -it --net=host \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     osrf/ros:noetic-desktop-full \
     bash -it -c "roslaunch gazebo_ros empty_world.launch"
+
+```
 NOTE: You only have to run xhost + once each time you log into the machine. These settings persist per login session.
 
 However, in my experience this approach is not bulletproof. In fact, the instructions from the ROS Wiki on their own do not work on my personal laptop. This is where the NVIDIA Container Toolkit comes in. As long as you have an NVIDIA GPU with the right drivers (which in Ubuntu is a feat in itself, to be honest), you can get around some of the pesky display issues and additionally get support for other GPU accelerated tasks such as CUDA and OpenGL. Once you install the NVIDIA Container Toolkit, the above command gets a few more pieces tacked on. For example:
-
+```
 docker run -it --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
     --env="DISPLAY" \
@@ -79,29 +85,12 @@ docker run -it --net=host --gpus all \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     osrf/ros:noetic-desktop-full \
     bash -it -c "roslaunch gazebo_ros empty_world.launch"
-
+```
 One more recommendation — which I know is a backpedal from my original suggestion — is if you need to rely on graphics and GPU acceleration, don’t start with the OSRF ROS Docker images. Instead, go to the NVIDIA Docker Hub and look for the nvidia/cuda or nvidia/cudagl images.
 
 While you’ll have to edit your Dockerfile to install ROS, it’s undoubtedly easier than figuring out how to get NVIDIA drivers into an existing ROS image. Here’s a minimal example whose steps are directly based on the official ROS Noetic install instructions.
 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
+```
 FROM nvidia/cudagl:11.1.1-base-ubuntu20.04
  
 # Minimal setup
@@ -120,6 +109,8 @@ RUN rosdep init \
  && rosdep fix-permissions \
  && rosdep update
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+
+```
 Then, you can build this new image, which I’m naming nvidia_ros, and test out all of the promised capabilities.
 
 # Build the Dockerfile
