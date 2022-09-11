@@ -114,8 +114,10 @@ RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 Then, you can build this new image, which I’m naming nvidia_ros, and test out all of the promised capabilities.
 
 # Build the Dockerfile
+```
 docker build -t nvidia_ros .
- 
+```
+```
 # Start a terminal
 docker run -it --net=host --gpus all \
     --env="NVIDIA_DRIVER_CAPABILITIES=all" \
@@ -137,6 +139,9 @@ nvidia-smi
 # Check OpenGL functionality
 apt-get install mesa-utils
 glxgears
+```
+
+
 Stack ’em: Multi-Stage Builds
 One of the great things about Docker is the ability to create multi-stage builds, where one image stacks on top of the other. We already saw this in the last section in that we created our nvidia_ros image to build on top of the nvidia/cudagl:11.1.1-base-ubuntu20.04 image… but it doesn’t have to stop there.
 
@@ -145,33 +150,7 @@ Now that we have a “core” image that has all our NVIDIA and ROS support, we 
 ![image](https://user-images.githubusercontent.com/44266017/189527004-9bb219e0-3ffa-4ddd-a995-30fa17aa7b5a.png)
 
 Our base image would look as follows:
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
+```
 FROM nvidia_ros:latest
  
 # Change the default shell to Bash
@@ -198,6 +177,8 @@ RUN echo "source /turtlebot3_ws/devel/setup.bash" >> ~/.bashrc
  
 # Set the working folder at startup
 WORKDIR /turtlebot3_ws
+```
+
 Then we can build both our images, where the -f flag refers to the file name to use and -t refers to the name of the target container. Otherwise, Docker will by default look for a file in the current folder named Dockerfile.
 
 docker build -f dockerfile_nvidia_ros -t nvidia_ros .
