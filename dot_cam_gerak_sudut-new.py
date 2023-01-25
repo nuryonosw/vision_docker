@@ -299,6 +299,7 @@ class MoveGroupPythonInterfaceTutorial(object):
  
             #Write the string "Hello, New Stack!" to the file
             file1.write(str(move_group.get_current_joint_values()))
+            file1.write("\n")
             print("============ Image frame saved for Current Joints value!")
             rospy.sleep(5)
 
