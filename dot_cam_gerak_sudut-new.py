@@ -320,6 +320,7 @@ class MoveGroupPythonInterfaceTutorial(object):
         print("============ Printing robot state")
         #print(robot.get_current_state())
         print("")
+        current_joints = move_group.get_current_joint_values()
         return all_close(joint_goal, current_joints, 0.01)
 
     def go_to_pose_goal(self):
