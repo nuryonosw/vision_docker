@@ -269,9 +269,9 @@ class MoveGroupPythonInterfaceTutorial(object):
         
         
         dir_skrg =os.getcwd()
-        file1 = open(dir_skrg+'.txt', 'w')
+        #file1 = open(dir_skrg+'.txt', 'w')
         n = 0
-        for ulang in range(5):
+        for ulang in range(2):
             joint_goal = move_group.get_current_joint_values()
             joint_goal[0] = 0
             joint_goal[1] = -0.782
@@ -309,7 +309,7 @@ class MoveGroupPythonInterfaceTutorial(object):
                 #print(robot.get_current_state())
                 print (move_group.get_current_joint_values())
                 #Open the text.txt file in write mode.
-
+                file1 = open(str(j5)+'_'+waktu_mulai_sekuen+'.txt', 'w')
     
                 #Write the string "Hello, New Stack!" to the file
                 file1.write(str(move_group.get_current_joint_values()))
