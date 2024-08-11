@@ -1,0 +1,684 @@
+<?xml version="1.0"?>
+<!-- Open_Manipulator Chain -->
+<robot name="open_manipulator" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+   <xacro:property name="cameraSize" value="0.02"/>
+  <xacro:property name="cameraMass" value="0.1"/>
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find open_manipulator_description)/urdf/open_manipulator.gazebo.xacro" />
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find open_manipulator_description)/urdf/materials.xacro" />
+
+  <!-- Transmission macro -->
+  <xacro:macro name="SimpleTransmission" params="joint n">
+    <transmission name="tran${n}">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${joint}">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="motor${n}">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+ <!-- World -->
+  <link name="world">
+  <visual>
+      <origin xyz="-0.03 0 0.0335" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.15 0.1 0.067"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  
+
+  <!-- World fixed joint-->
+  <joint name="world_fixed" type="fixed">
+    <origin xyz="0 0 0.067" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="link1"/>
+  </joint>
+
+
+
+   <!-- Link 1 -->
+  <link
+    name="link1">
+    <inertial>
+      <origin
+        xyz="-0.01965 -0.00022227 0.057431"
+        rpy="0 0 0" />
+      <mass
+        value="0.74766" />
+      <inertia
+        ixx="0.0010668"
+        ixy="-9.7135E-06"
+        ixz="-5.6367E-06"
+        iyy="0.0015759"
+        iyz="-1.8343E-07"
+        izz="0.0015596" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link1.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link1.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+   <!-- Link 2 -->
+  <link
+    name="link2">
+    <inertial>
+      <origin
+        xyz="0.00010168 0.00054716 0.032795"
+        rpy="0 0 0" />
+      <mass
+        value="0.10538" />
+      <inertia
+        ixx="4.3029E-05"
+        ixy="-4.0244E-13"
+        ixz="-1.239E-08"
+        iyy="3.676E-05"
+        iyz="-1.6188E-07"
+        izz="3.1176E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link2.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link2.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Joint 1 0.14295-->
+  <joint
+    name="joint1"
+    type="revolute">
+    <origin
+      xyz="0 0 0.14295"
+      rpy="0 0 0" />
+    <parent
+      link="link1" />
+    <child
+      link="link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit effort="1" lower="-2.8776988706882505" upper="2.8776988706882505" velocity="4.8"/>
+  </joint>
+
+
+    <!-- Transmission 1 -->
+  <xacro:SimpleTransmission n="1" joint="joint1" />
+
+   <!-- Link 3 -->
+  <link
+    name="link3">
+    <inertial>
+      <origin
+        xyz="0.0085219 0.00036354 0.15737"
+        rpy="0 0 0" />
+      <mass
+        value="0.15861" />
+      <inertia
+        ixx="5.9433E-05"
+        ixy="-1.6189E-07"
+        ixz="1.9324E-06"
+        iyy="6.8684E-05"
+        iyz="-1.3248E-11"
+        izz="5.8738E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link3.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link3.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Joint 2 -->
+  <joint
+    name="joint2"
+    type="revolute">
+    <origin
+      xyz="0 0 0.05475"
+      rpy="0 0 0" />
+    <parent
+      link="link2" />
+    <child
+      link="link3" />
+    <axis
+      xyz="0 1 0" />
+    <limit effort="1" lower="-2.098269733332623" upper="1.8739600178663116" velocity="4.8"/>
+  </joint>
+
+      <!-- Transmission 2 -->
+  <xacro:SimpleTransmission n="2" joint="joint2" />
+
+
+   <!-- Link 4 -->
+  <link
+    name="link4">
+    <inertial>
+      <origin
+        xyz="0.080628 -2.2275E-09 0.011937"
+        rpy="0 0 0" />
+      <mass
+        value="0.087416" />
+      <inertia
+        ixx="1.6944E-05"
+        ixy="-3.7954E-13"
+        ixz="-7.842E-06"
+        iyy="6.4731E-05"
+        iyz="-3.6122E-13"
+        izz="5.4746E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link4.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link4.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Joint 3 -->
+  <joint
+    name="joint3"
+    type="revolute">
+    <origin
+      xyz="0.0315 0 0.2"
+      rpy="0 0 0" />
+    <parent
+      link="link3" />
+    <child
+      link="link4" />
+    <axis
+      xyz="0 1 0" />
+    <limit effort="1" lower="-1.8017033868337464" upper="1.4074335088082273" velocity="4.8"/>
+  </joint>
+
+    <!-- Transmission 3 -->
+  <xacro:SimpleTransmission n="3" joint="joint3" />
+
+
+   <!-- Link 5 -->
+  <link
+    name="link5">
+    <inertial>
+      <origin
+        xyz="0.053751 0.00023994 0.00012879"
+        rpy="0 0 0" />
+      <mass
+        value="0.071012" />
+      <inertia
+        ixx="1.2314E-05"
+        ixy="1.5733E-09"
+        ixz="-5.4086E-08"
+        iyy="1.5494E-05"
+        iyz="3.7646E-11"
+        izz="1.7398E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link5.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link5.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Joint 4 -->
+  <joint
+    name="joint4"
+    type="revolute">
+    <origin
+      xyz="0.11423 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="link4" />
+    <child
+      link="link5" />
+    <axis
+      xyz="1 0 0" />
+   <limit effort="1" lower="-3.122743097668254" upper="3.122743097668254" velocity="4.8"/>
+  </joint>
+
+      <!-- Transmission 1 -->
+  <xacro:SimpleTransmission n="4" joint="joint4" />
+
+
+   <!-- Link 6 -->
+  <link
+    name="link6">
+    <inertial>
+      <origin
+        xyz="0.041973 2.9548E-12 0.011248"
+        rpy="0 0 0" />
+      <mass
+        value="0.063277" />
+      <inertia
+        ixx="1.3053E-05"
+        ixy="-1.0267E-12"
+        ixz="-1.6123E-06"
+        iyy="1.9065E-05"
+        iyz="-6.8848E-14"
+        izz="1.1977E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link6.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link6.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Joint 5 -->
+  <joint
+    name="joint5"
+    type="revolute">
+    <origin
+      xyz="0.085871 0 0.00034864"
+      rpy="0 0 0" />
+    <parent
+      link="link5" />
+    <child
+      link="link6" />
+    <axis
+      xyz="0 1 0" />
+    <limit effort="1" lower="-1.8017033868337464" upper="2.222048483884061" velocity="4.8"/>
+  </joint>
+
+      <!-- Transmission 1 -->
+  <xacro:SimpleTransmission n="5" joint="joint5" />
+
+
+   <!-- Link 7 -->
+  <link
+    name="link7">
+    <inertial>
+      <origin
+        xyz="0.01734 -0.00049016 0.00797"
+        rpy="0 0 0" />
+      <mass
+        value="0.090759" />
+      <inertia
+        ixx="2.8735E-05"
+        ixy="-1.1425E-06"
+        ixz="9.0354E-07"
+        iyy="1.5626E-05"
+        iyz="1.9059E-07"
+        izz="2.8184E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link7.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link7.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Joint 6 -->
+  <joint
+    name="joint6"
+    type="revolute">
+    <origin
+      xyz="0.064132 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="link6" />
+    <child
+      link="link7" />
+    <axis
+      xyz="1 0 0" />
+   <limit velocity="4.8" effort="1" lower="-3.122" upper="3.122" />
+  </joint>
+
+      <!-- Transmission 1 -->
+  <xacro:SimpleTransmission n="6" joint="joint6" />
+
+
+  <!--  Gripper link Left-->
+  <link
+    name="gripper_link_sub">
+    <inertial>
+      <origin
+        xyz="0.040901 0.013361 0.012169"
+        rpy="0 0 0" />
+      <mass
+        value="0.053613" />
+      <inertia
+        ixx="5.8094E-06"
+        ixy="2.5656E-06"
+        ixz="3.1839E-09"
+        iyy="2.554E-05"
+        iyz="-3.3211E-09"
+        izz="2.8714E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 -0.174533" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link_grip_l.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link_grip_l.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!--  Gripper link Right-->
+  <link
+    name="gripper_link">
+    <inertial>
+      <origin
+        xyz="0.040572 -0.013645 0.01692"
+        rpy="0 0 0" />
+      <mass
+        value="0.053526" />
+      <inertia
+        ixx="5.7373E-06"
+        ixy="-2.409E-06"
+        ixz="-3.6952E-08"
+        iyy="2.5555E-05"
+        iyz="3.0908E-08"
+        izz="2.8697E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0.174533" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link_grip_r.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://open_manipulator_description/meshes/chain_link_grip_r.stl" />
+      </geometry>
+    </collision>
+  </link>
+   <joint
+    name="gripper"
+    type="revolute">
+    <origin
+      xyz="0.023868 -0.016 -0.017"
+      rpy="0 0 0" />
+    <parent
+      link="link7" />
+    <child
+      link="gripper_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit velocity="4.8" effort="1" lower="-0.7133010663668231" upper="1.059980724428978" />
+  </joint>
+
+
+  
+     <!-- Transmission 1 -->
+  <xacro:SimpleTransmission n="7" joint="gripper" />
+
+
+  <joint
+    name="gripper_sub"
+    type="revolute">
+    <origin
+      xyz="0.023868 0.016 -0.012169"
+      rpy="0 0 0" />
+    <parent
+      link="link7" />
+    <child
+      link="gripper_link_sub" />
+    <axis
+      xyz="0 0 -1" />
+     <limit velocity="4.8" effort="1" lower="-1.059980724428978" upper="0.7133010663668231" />
+    <mimic
+      joint="gripper"
+      multiplier="1"
+      offset="0" />
+  </joint>
+
+     <!-- Transmission 1 -->
+  <xacro:SimpleTransmission n="8" joint="gripper_sub" />
+
+  <!-- end effector joint -->
+  <joint name="end_effector_joint" type="fixed">
+    <origin xyz="0.13375 0 0" rpy="0 0 0"/>
+    <parent link="link7"/>
+    <child link="end_effector_link"/>
+  </joint>
+
+  <!-- end effector link -->
+  <link name="end_effector_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01" />
+      </geometry>
+      <material name="red"/>
+     </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.001"/>
+      <inertia ixx="1.0e-06" ixy="0.0" ixz="0.0" iyy="1.0e-06" iyz="0.0" izz="1.0e-06" />
+    </inertial>
+  </link>
+
+  <link name="d435_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+         <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0.0 0 0.0" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://open_manipulator_description/meshes/d435.dae" />
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <inertial>
+      <mass value="${cameraMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${cameraMass}" x="${cameraSize}" y="${cameraSize}" z="${cameraSize}" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+
+ <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+         <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0.0 0 0.0" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <inertial>
+      <mass value="${cameraMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${cameraMass}" x="${cameraSize}" y="${cameraSize}" z="${cameraSize}" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="d435_joint" type="fixed">
+    <axis xyz="0 0 0" />
+    <origin xyz="0.035 0.0 0.07" rpy="0 0 0"/>
+    <parent link="link7"/>
+    <child link="d435_link"/>
+  </joint>
+
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 0 0" />
+    <origin xyz="-0.0042 -0.0115 0.00" rpy="0 0 0"/>
+    <parent link="d435_link"/>
+    <child link="camera_link"/>
+  </joint>
+
+
+  
+
+
+
+
+
+
+</robot>
